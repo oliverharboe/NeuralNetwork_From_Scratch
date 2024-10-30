@@ -10,7 +10,7 @@ class NerualNetwork:
         self.w2 = np.random.randn(16,10)
         self.b2 = np.random.randn(10,1)
     
-    def predict(self,X):
+    def predict(self,X:np.ndarray) -> np.ndarray:
         '''
         Forward propagation
         '''
@@ -20,23 +20,23 @@ class NerualNetwork:
         a2 = softmax(z2)
         return a2
     
-    def fit(self,X,y):
+    def fit(self,X:np.ndarray,y:np.ndarray) -> None:
         """
         Backpropagation
         """
         pass
 
-def relu_m(x):
+def relu_m(x:float) -> float:
     # differentieret relu funktion
     return np.where(x > 0, 1,0)
 
     
 
-def softmax(x):
+def softmax(x:float) -> float:
     # Definere Softmax funktionen
     return np.exp(x) / np.sum(np.exp(x),axis=0)
 
 
-def relu(x):
+def relu(x:float) -> float:
     # Definere ReLu funktionen
     return np.maximum(0,x)

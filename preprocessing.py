@@ -7,8 +7,7 @@ def main():
     FILEPATH = 'Data/mnist_data.csv'
     X,y = load_data(FILEPATH)
     X_train,y_train,X_test,y_test = split_data(X,y)
-    plot_numbers(X_test)
-    #return X_train,y_train,X_test,y_test
+    return X_train,y_train,X_test,y_test
 
 def load_data(path:str) -> tuple[list,list]:
     train_df = pd.read_csv(path)
@@ -19,16 +18,19 @@ def load_data(path:str) -> tuple[list,list]:
     return X.to_numpy(),y.to_numpy()
 
 def split_data(X:pd.DataFrame,y:pd.DataFrame) -> tuple[list,list,list,list]:
-    X_train,y_train,X_test,y_test = train_test_split(X,y,test_size=0.2,random_state=4,stratify=y)
+    X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=4,stratify=y)
     return X_train,y_train,X_test,y_test
 
-def plot_numbers(num:np.ndarray) -> None:
-    # Plotting numbers
+def plot_numbers(num:np.ndarray,label:np.ndarray = None) -> None:
+    '''
+    Creating a gray scale image of the number (with and without label)
+    '''
     print(num.shape)
-    #image = num.reshape((28,28))
-    #fig = plt.figure
-    #plt.imshow(num, cmap='gray')
-    #plt.show()
+    image = num.reshape(28,28)
+    plt.imshow(image, cmap='gray')
+    if label != None:
+        plt.title(f'Label: {label}')
+    plt.show()
 
 if __name__ == '__main__':
     main()

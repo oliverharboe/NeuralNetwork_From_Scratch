@@ -65,16 +65,17 @@ class NeuralNetwork:
             
             
             if epoch % 5 == 0:
-                predictions = self.prediction(X)
+                predictions = self.predict(X)
                 accuracy = get_accuracy(predictions, y)
                 print(f'Epoch: {epoch}, accuracy: {accuracy:.4f}')
         
 
 
             
-    def prediction(self,X:np.ndarray) -> np.ndarray:
+    def predict(self,X:np.ndarray) -> np.ndarray:
         '''
         changes from a onehot encoded vector to a number
+        outputs matrix (10,)
         '''
         _, _, _, a2 = self.forwardProp(X)
         return np.argmax(a2, axis=0)

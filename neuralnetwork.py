@@ -1,14 +1,14 @@
 import numpy as np
 
-class NerualNetwork:
+class NeuralNetwork:
     def __init__(self) -> None:
         '''
         Initalizere parameters (weights and biases)
         '''
-        self.w1 = np.random.randn(16,784)
-        self.b1 = np.random.randn(16,1)
-        self.w2 = np.random.randn(10,16)
-        self.b2 = np.random.randn(10,1)
+        self.w1 = np.random.randn(16, 784) 
+        self.b1 = np.zeros((16, 1))  
+        self.w2 = np.random.randn(10, 16)
+        self.b2 = np.zeros((10, 1)) 
     
     def forwardProp(self,X:np.ndarray) -> np.ndarray:
         '''
@@ -21,42 +21,80 @@ class NerualNetwork:
 
         return z1,a1,z2,a2
     
-    def backProp(self,X:np.ndarray,y:np.ndarray) -> None:
+    def backProp(self,z1,a1,z2,a2,X,y) -> tuple[np.ndarray,np.ndarray,np.ndarray,np.ndarray]:
         """
         Backpropagation
+        using categoricalcrossentropy loss function which is simplyfied A2 - y
         """
 
+        m = y.shape[0]
+        dz2 = a2 - y.T
+        dw2 = 1/m * np.dot(dz2,a1.T)
+        db2 = 1/m * np.sum(dz2, axis=1, keepdims=True)
+        dz1 = np.dot(self.w2.T,dz2) * ReLU_m(z1)
+        dw1 = 1/m * np.dot(dz1,X)
+        db1 = 1/m * np.sum(dz1, axis=1, keepdims=True)
+
+        return dw1,db1,dw2,db2
+
+
+
+
+
+    
+    def update_parameters(self,alpha,dw1,db1,dw2,db2) -> None:
+        """
+        Update parameters
+        """
+        self.w1 -= alpha * dw1
+        self.b1 -= alpha * db1
+        self.w2 -= alpha * dw2
+        self.b2 -= alpha * db2
     
 
 
-    def gradientDescent(self,X:np.ndarray,y:np.ndarray,epochs:int,learning_rate:float) -> None:
+    def gradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, alpha: float) -> list:
         '''
         Gradient Descent
-        optimizing the parameters
         '''
+        
         for epoch in range(epochs):
-            pass
+            z1, a1, z2, a2 = self.forwardProp(X)
+            dw1, db1, dw2, db2 = self.backProp(z1, a1, z2, a2, X, y)
+            self.update_parameters(alpha, dw1, db1, dw2, db2)
+            
+            
+            if epoch % 5 == 0:
+                predictions = self.prediction(X)
+                accuracy = get_accuracy(predictions, y)
+                print(f'Epoch: {epoch}, accuracy: {accuracy:.4f}')
+        
+
+
             
     def prediction(self,X:np.ndarray) -> np.ndarray:
         '''
         changes from a onehot encoded vector to a number
         '''
-        vector = self.forwardProp(X)
-        pre = np.argmax(vector,axis=0)
-        return pre
+        _, _, _, a2 = self.forwardProp(X)
+        return np.argmax(a2, axis=0)
 
 def ReLU_m(x:float) -> float:
-    # differentieret relu funktion
+    # derivative of relu funktion
+    # if x > 0 return 1 else 0
     return np.where(x > 0, 1,0)
 
 
 def softmax(x:float) -> float:
     # Softmax funktionen 
-    # funktionen er en variant der gør at 
-    
-    y = np.exp(x-np.max(x)) / np.sum(np.exp(x-np.max(x)),axis=0)
-    return y
+    # returns probability distribution
+    exp_x = np.exp(x - np.max(x, axis=0, keepdims=True))
+    return exp_x / np.sum(exp_x, axis=0, keepdims=True)
 
 def ReLU(x:float) -> float:
-    # Definere ReLu funktionen
+    # ReLu funktionen
     return np.maximum(0,x)
+
+def get_accuracy(predictions: np.ndarray, y: np.ndarray) -> float:
+    true_labels = np.argmax(y, axis=1)
+    return np.mean(predictions == true_labels)

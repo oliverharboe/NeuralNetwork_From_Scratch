@@ -7,16 +7,19 @@ from neuralnetwork import NeuralNetwork
 def main():
     FILEPATH = 'Data/mnist_data.csv'
     X,y = load_data(FILEPATH)
+    X = normalize_data(X)
     X_train,y_train,X_test,y_test = split_data(X,y)
     y_train = oneHotlabel(y_train)
     model = NeuralNetwork()
-    model.gradientDescent(X_train,y_train,epochs=100,alpha=0.0001)
+    model.gradientDescent(X_train,y_train,epochs=400,alpha=0.3)
+    model
 
 def load_data(path:str) -> tuple[np.ndarray,np.ndarray]:
     '''
     loading data from csv
     '''
     train_df = pd.read_csv(path)
+    print(train_df.shape)
 
     y = train_df.loc[:,'label']
     X = train_df.drop('label',axis=1)

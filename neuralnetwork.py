@@ -57,17 +57,18 @@ class NeuralNetwork:
         '''
         Gradient Descent
         '''
-        
+        accuracy_arr = []
         for epoch in range(epochs):
             z1, a1, z2, a2 = self.forwardProp(X)
             dw1, db1, dw2, db2 = self.backProp(z1, a1, z2, a2, X, y)
             self.update_parameters(alpha, dw1, db1, dw2, db2)
             
-            
-            if epoch % 5 == 0:
+            if epoch % 10 == 0:
                 predictions = self.predict(X)
                 accuracy = get_accuracy(predictions, y)
+                accuracy_arr.append(accuracy)
                 print(f'Epoch: {epoch}, accuracy: {accuracy:.4f}')
+        return np.array(accuracy_arr)
         
 
 

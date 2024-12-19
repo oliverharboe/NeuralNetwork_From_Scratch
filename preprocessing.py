@@ -10,7 +10,7 @@ def main():
     X = normalize_data(X)
     X_train,y_train,X_test,y_test = split_data(X,y)
     y_train = oneHotlabel(y_train)
-    model = NeuralNetwork()
+    model = NeuralNetwork(hidden_size=16)
     model.gradientDescent(X_train,y_train,epochs=500,alpha=0.1)
     prediction = model.predict(np.array(X_test[:1]))
     plot_numbers(X_test[0],y_test[0],prediction)
@@ -20,7 +20,6 @@ def load_data(path:str) -> tuple[np.ndarray,np.ndarray]:
     loading data from csv
     '''
     train_df = pd.read_csv(path)
-    print(train_df.shape)
 
     y = train_df.loc[:,'label']
     X = train_df.drop('label',axis=1)

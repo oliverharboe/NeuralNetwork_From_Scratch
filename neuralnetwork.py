@@ -1,16 +1,16 @@
 import numpy as np
 
 class NeuralNetwork:
-    def __init__(self) -> None:
+    def __init__(self,hidden_size) -> None:
         '''
         Initalizere parameters (weights and biases)
         '''
-        self.w1 = np.random.randn(16, 784) 
-        self.b1 = np.zeros((16, 1))  
-        self.w2 = np.random.randn(10, 16)
-        self.b2 = np.zeros((10, 1)) 
+        self.w1 = np.random.randn(hidden_size, 784) 
+        self.b1 = np.random.randn(hidden_size, 1)  
+        self.w2 = np.random.randn(10, hidden_size)
+        self.b2 = np.random.randn(10, 1) 
     
-    def forwardProp(self,X:np.ndarray) -> np.ndarray:
+    def forwardProp(self,X:np.ndarray) -> tuple[np.ndarray,np.ndarray,np.ndarray,np.ndarray]:
         '''
         Forward propagation
         '''
@@ -53,7 +53,7 @@ class NeuralNetwork:
     
 
 
-    def gradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, alpha: float) -> list:
+    def gradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, alpha: float) -> None:
         '''
         Gradient Descent
         '''
@@ -87,13 +87,13 @@ def ReLU_m(x:float) -> float:
 
 
 def softmax(x:float) -> float:
-    # Softmax funktionen 
+    # Softmax functionen 
     # returns probability distribution
     exp_x = np.exp(x - np.max(x, axis=0, keepdims=True))
     return exp_x / np.sum(exp_x, axis=0, keepdims=True)
 
 def ReLU(x:float) -> float:
-    # ReLu funktionen
+    # ReLu functionen
     return np.maximum(0,x)
 
 def get_accuracy(predictions: np.ndarray, y: np.ndarray) -> float:

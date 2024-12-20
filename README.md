@@ -18,3 +18,4 @@ As part of this project, I have written a detailed report that explains the math
 neural network, including concepts such as linear algebra, calculus, and optimization. The report also
 covers programming theory, focusing on how the network was implemented from scratch, and
 includes an evaluation of the network’s performance and potential areas for improvement.
+The report is written in danish.

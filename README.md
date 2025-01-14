@@ -4,7 +4,7 @@ The focus is on neural networks, a fascinating area within artificial intelligen
 By combining mathematics, such as linear algebra and calculus, with programming, the project demonstrates how theoretical concepts and practical applications
 can be used together to design and train neural networks capable of solving complex problems.
 
-## How the netværk was build
+## How the network was build
 The neural network in this project is built from scratch using NumPy, a Python library essential for
 handling linear algebra operations. NumPy provides the tools to implement core mathematical
 concepts, such as matrix multiplications and activation functions, which are the backbone of the network.

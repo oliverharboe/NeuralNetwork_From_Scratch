@@ -25,20 +25,19 @@ class NeuralNetwork:
         """
         Backpropagation
         using categoricalcrossentropy loss function which is simplyfied A2 - y
+
+        the reason for sum and dotproduct is because X is a whole batch
         """
 
         m = y.shape[0]
         dz2 = a2 - y.T
-        dw2 = 1/m * np.dot(dz2,a1.T)
-        db2 = 1/m * np.sum(dz2, axis=1, keepdims=True)
+        dw2 = 1/m * np.dot(dz2,a1.T) # dot because we calculate for the whole batch
+        db2 = 1/m * np.sum(dz2, axis=1, keepdims=True) # sum because we calculate for the whole batch
         dz1 = np.dot(self.w2.T,dz2) * ReLU_m(z1)
         dw1 = 1/m * np.dot(dz1,X)
         db1 = 1/m * np.sum(dz1, axis=1, keepdims=True)
 
         return dw1,db1,dw2,db2
-
-
-
 
 
     

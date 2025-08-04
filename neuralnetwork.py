@@ -29,7 +29,7 @@ class NeuralNetwork:
         the reason for sum and dotproduct is because X is a whole batch
         """
 
-        m = y.shape[0]
+        m = y.shape[0] # m is the size of batch
         dz2 = a2 - y.T
         dw2 = 1/m * np.dot(dz2,a1.T) # dot because we calculate for the whole batch
         db2 = 1/m * np.sum(dz2, axis=1, keepdims=True) # sum because we calculate for the whole batch

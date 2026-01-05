@@ -3,23 +3,18 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
 from neuralnetwork import NeuralNetwork
+
 def main():
     FILEPATH = 'Data/mnist_data.csv'
     X,y = load_data(FILEPATH)
     X = normalize_data(X)
     X_train,y_train,X_test,y_test = split_data(X,y)
     y_train = oneHotlabel(y_train)
-    model = NeuralNetwork(hidden_size=16)
-    model2 = NeuralNetwork(hidden_size=32)
-    model3 = NeuralNetwork(hidden_size=64)
+    model = NeuralNetwork(hidden_size=32)
     accuracy = model.gradientDescent(X_train,y_train,epochs=400,alpha=0.1)
-    accuracy2 = model2.gradientDescent(X_train,y_train,epochs=400,alpha=0.1)
-    accuracy3 = model3.gradientDescent(X_train,y_train,epochs=400,alpha=0.1)
     plot_accuracy(accuracy,accuracy2,accuracy3)
-    prediction1 = model.predict(np.array(X_test[1:]))
-    prediction2 = model2.predict(np.array(X_test[1:]))
-    prediction3 = model3.predict(np.array(X_test[1:]))
-    print(f'16n accuracy: {test_accuracy(prediction1,y_test[1:])}, 32n accuracy: {test_accuracy(prediction2,y_test[1:])}, 64n accuracy: {test_accuracy(prediction3,y_test[1:])}')
+    prediction = model.predict(np.array(X_test[1:]))
+    print(f'16n accuracy: {test_accuracy(prediction1,y_test[1:])}')
     #plot_numbers(X_test[0],y_test[0],prediction)
 
 def load_data(path:str) -> tuple[np.ndarray,np.ndarray]:
@@ -74,7 +69,7 @@ def plot_numbers(num:np.ndarray,label:np.ndarray,prediction:np.ndarray) -> None:
     '''
     image = num.reshape(28,28)
     plt.imshow(image, cmap='gray')
-    if label != None:
+    if label is not None:
         plt.title(f'Label: {label} Prediction: {prediction}')
     plt.show()
 

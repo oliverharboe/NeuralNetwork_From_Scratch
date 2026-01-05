@@ -9,6 +9,7 @@ class NeuralNetwork:
         self.b1 = np.random.randn(hidden_size, 1)  
         self.w2 = np.random.randn(10, hidden_size)
         self.b2 = np.random.randn(10, 1) 
+
     
     def forwardProp(self,X:np.ndarray) -> tuple[np.ndarray,np.ndarray,np.ndarray,np.ndarray]:
         '''
@@ -50,9 +51,9 @@ class NeuralNetwork:
         self.w2 -= alpha * dw2
         self.b2 -= alpha * db2
     
+    
 
-
-    def gradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, alpha: float) -> None:
+    def gradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, alpha: float, beta: float = 0.9) -> None:
         '''
         Gradient Descent
         '''
@@ -60,7 +61,7 @@ class NeuralNetwork:
         for epoch in range(epochs):
             z1, a1, z2, a2 = self.forwardProp(X)
             dw1, db1, dw2, db2 = self.backProp(z1, a1, z2, a2, X, y)
-            self.update_parameters(alpha, dw1, db1, dw2, db2)
+            self.momentum(alpha, beta, dw1, db1, dw2, db2)
             
             if epoch % 10 == 0:
                 predictions = self.predict(X)
@@ -69,6 +70,29 @@ class NeuralNetwork:
                 print(f'Epoch: {epoch}, accuracy: {accuracy:.4f}')
         return np.array(accuracy_arr)
         
+    def momentum(self, learning_rate, beta, dw1, db1, dw2, db2):
+        """
+        stadard momentum optimizer for gradient descent
+        """
+
+        if not hasattr(self, "v_w1"):
+            self.v_w1 = np.zeros(self.w1.shape)
+            self.v_b1 = np.zeros(self.b1.shape)
+            self.v_w2 = np.zeros(self.w2.shape)
+            self.v_b2 = np.zeros(self.b2.shape)
+            print("momentum 0")
+
+        self.v_w1 = beta * self.v_w1 + learning_rate * dw1 
+        self.v_b1 = beta * self.v_b1 + learning_rate * db1 
+        self.v_w2 = beta * self.v_w2 + learning_rate * dw2
+        self.v_b2 = beta * self.v_b2 + learning_rate * db2 
+
+        self.w1 -= self.v_w1
+        self.b1 -= self.v_b1
+        self.w2 -= self.v_w2
+        self.b2 -= self.v_b2
+
+
 
 
             

@@ -11,7 +11,7 @@ class NeuralNetwork:
         self.b2 = np.random.randn(10, 1) 
 
     
-    def forwardProp(self,X:np.ndarray) -> tuple[np.ndarray,np.ndarray,np.ndarray,np.ndarray]:
+    def forwardProp(self,X:np.ndarray) -> tuple:
         '''
         Forward propagation
         '''
@@ -42,7 +42,7 @@ class NeuralNetwork:
 
 
     
-    def update_parameters(self,alpha,dw1,db1,dw2,db2) -> None:
+    def update_parameters(self, dw1, db1, dw2, db2, alpha) -> None:
         """
         Update parameters
         """
@@ -53,7 +53,7 @@ class NeuralNetwork:
     
     
 
-    def gradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, alpha: float, beta: float = 0.9) -> None:
+    def stocasticGradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, alpha: float, beta: float = 0.9) -> np.ndarray:
         '''
         Gradient Descent
         '''
@@ -61,7 +61,7 @@ class NeuralNetwork:
         for epoch in range(epochs):
             z1, a1, z2, a2 = self.forwardProp(X)
             dw1, db1, dw2, db2 = self.backProp(z1, a1, z2, a2, X, y)
-            self.momentum(alpha, beta, dw1, db1, dw2, db2)
+            self.momentum(dw1, db1, dw2, db2, alpha)
             
             if epoch % 10 == 0:
                 predictions = self.predict(X)
@@ -69,10 +69,52 @@ class NeuralNetwork:
                 accuracy_arr.append(accuracy)
                 print(f'Epoch: {epoch}, accuracy: {accuracy:.4f}')
         return np.array(accuracy_arr)
+
+    def batchGradientDescent(self, X: np.ndarray, y: np.ndarray, epochs: int, batch_size : int, alpha: float, beta: float = 0.9) -> np.ndarray:
+        '''
+        batch gradient descent 
+        '''
+        accuracy_arr = []
+        for epoch in range(epochs):
+            for i in np.arange(start=0, stop=X.shape[0], step = batch_size):
+                X_batch = X[i:i+batch_size]
+                y_batch = y[i:i+batch_size]
+                z1, a1, z2, a2 = self.forwardProp(X_batch)
+                dw1, db1, dw2, db2 = self.backProp(z1, a1, z2, a2, X_batch, y_batch)
+                self.rmsprop(dw1, db1, dw2, db2, alpha)
+            
+            if epoch % 5 == 0:
+                predictions = self.predict(X)
+                accuracy = get_accuracy(predictions, y)
+                accuracy_arr.append(accuracy)
+                print(f'Epoch: {epoch}, accuracy: {accuracy:.4f}')
+        return np.array(accuracy_arr)
         
-    def momentum(self, learning_rate, beta, dw1, db1, dw2, db2):
+    def momentum(self, dw1, db1, dw2, db2, learning_rate, beta=0.9):
         """
         stadard momentum optimizer for gradient descent
+        """
+
+        if not hasattr(self, "m_w1"):
+            self.m_w1 = np.zeros(self.w1.shape)
+            self.m_b1 = np.zeros(self.b1.shape)
+            self.m_w2 = np.zeros(self.w2.shape)
+            self.m_b2 = np.zeros(self.b2.shape)
+
+        self.m_w1 = beta * self.m_w1 + (1 - beta) * dw1 
+        self.m_b1 = beta * self.m_b1 + (1 - beta) * db1 
+        self.m_w2 = beta * self.m_w2 + (1 - beta) * dw2
+        self.m_b2 = beta * self.m_b2 + (1 - beta) * db2 
+
+        self.w1 -= self.m_w1 * learning_rate
+        self.b1 -= self.m_b1 * learning_rate
+        self.w2 -= self.m_w2 * learning_rate
+        self.b2 -= self.m_b2 * learning_rate
+
+    def rmsprop(self, dw1, db1, dw2, db2, learning_rate, beta=0.9, epsilon=1e-8):
+        """
+        RMSprop optimizer
+        RMSprop uses adaptive learning rate
         """
 
         if not hasattr(self, "v_w1"):
@@ -80,20 +122,17 @@ class NeuralNetwork:
             self.v_b1 = np.zeros(self.b1.shape)
             self.v_w2 = np.zeros(self.w2.shape)
             self.v_b2 = np.zeros(self.b2.shape)
-            print("momentum 0")
 
-        self.v_w1 = beta * self.v_w1 + learning_rate * dw1 
-        self.v_b1 = beta * self.v_b1 + learning_rate * db1 
-        self.v_w2 = beta * self.v_w2 + learning_rate * dw2
-        self.v_b2 = beta * self.v_b2 + learning_rate * db2 
+        self.v_w1 = beta * self.v_w1 + (1 - beta) * dw1 ** 2
+        self.v_b1 = beta * self.v_b1 + (1 - beta) * db1 ** 2
+        self.v_w2 = beta * self.v_w2 + (1 - beta) * dw2 ** 2
+        self.v_b2 = beta * self.v_b2 + (1 - beta) * db2 ** 2
+        
 
-        self.w1 -= self.v_w1
-        self.b1 -= self.v_b1
-        self.w2 -= self.v_w2
-        self.b2 -= self.v_b2
-
-
-
+        self.w1 -= learning_rate / np.sqrt(self.v_w1 + epsilon) * dw1 
+        self.b1 -= learning_rate / np.sqrt(self.v_b1 + epsilon) * db1 
+        self.w2 -= learning_rate / np.sqrt(self.v_w2 + epsilon) * dw2 
+        self.b2 -= learning_rate / np.sqrt(self.v_b2 + epsilon) * db2 
 
             
     def predict(self,X:np.ndarray) -> np.ndarray:
@@ -107,7 +146,7 @@ class NeuralNetwork:
 def ReLU_m(x:float) -> float:
     # derivative of relu funktion
     # if x > 0 return 1 else 0
-    return np.where(x > 0, 1,0)
+    return np.where(x > 0, 1, 0)
 
 
 def softmax(x:float) -> float:

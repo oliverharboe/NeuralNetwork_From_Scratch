@@ -11,11 +11,11 @@ def main():
     X_train,y_train,X_test,y_test = split_data(X,y)
     y_train = oneHotlabel(y_train)
     model = NeuralNetwork(hidden_size=32)
-    accuracy = model.gradientDescent(X_train,y_train,epochs=400,alpha=0.1)
-    plot_accuracy(accuracy,accuracy2,accuracy3)
+    accuracy = model.batchGradientDescent(X_train, y_train, epochs=400, alpha=0.1, batch_size=124)
+    plot_accuracy(accuracy)
+
     prediction = model.predict(np.array(X_test[1:]))
-    print(f'16n accuracy: {test_accuracy(prediction1,y_test[1:])}')
-    #plot_numbers(X_test[0],y_test[0],prediction)
+    print(f'16n accuracy: {test_accuracy(prediction,y_test[1:])}')
 
 def load_data(path:str) -> tuple[np.ndarray,np.ndarray]:
     '''
@@ -32,8 +32,8 @@ def split_data(X:pd.DataFrame,y:pd.DataFrame) -> tuple[np.ndarray,np.ndarray,np.
     '''
     splits data into train and test
     '''
-    X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.05,random_state=0,stratify=y)
-    return X_train,y_train,X_test,y_test
+    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.05,random_state=0,stratify=y)
+    return X_train, y_train, X_test, y_test
 
 def normalize_data(data):
     # change interval from [0;255] to [0;1]
@@ -50,15 +50,11 @@ def oneHotlabel(y:np.ndarray) -> np.ndarray:
     oneHot[np.arange(y.shape[0]),y] = 1
     return oneHot
 
-def plot_accuracy(accuracy:np.ndarray,accuracy2:np.ndarray,accuracy3:np.ndarray) -> None:
-    x = np.arange(start=10,stop=accuracy.shape[0]*10+10,step=10)
+def plot_accuracy(accuracy:np.ndarray) -> None:
+    x = np.arange(start=10, stop=accuracy.shape[0] * 10 + 10, step=10)
     accuracy = accuracy*100
-    accuracy2 = accuracy2*100
-    accuracy3 = accuracy3*100
     plt.plot(x,accuracy)
-    plt.plot(x,accuracy2)
-    plt.plot(x,accuracy3)
-    plt.legend(['hidden_size=16','hidden_size=32','hidden_size=64'])
+    plt.legend(['hidden_size=16'])
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')    
     plt.show()
